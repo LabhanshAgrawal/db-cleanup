@@ -1,7 +1,7 @@
 // Import the dependency.
 import { MongoClient } from 'mongodb';
 import { doc } from './mongodb-cleanup';
-const uri = process.env.MONGODB_URI;
+const uri = process.env.MONGODB_URI!;
 const options:any = {
    useUnifiedTopology: true,
    useNewUrlParser: true,
