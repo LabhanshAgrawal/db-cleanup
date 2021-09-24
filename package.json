@@ -14,5 +14,8 @@
   "scripts": {
     "start": "ts-node index.ts",
     "cleanup": "ts-node mongodb-cleanup.ts"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13"
   }
 }
