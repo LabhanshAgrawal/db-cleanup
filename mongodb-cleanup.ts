@@ -1,8 +1,9 @@
+import { MongoClient } from 'mongodb';
 import collectionPromise from './mongodb-client';
 
 export type doc = {ts: number; version: string; platform: string; count: number};
 
-export const cleanupDB = async (groupingPeriod: number) => {
+export const cleanupDB = async (groupingPeriod: number): Promise<MongoClient> => {
   console.log('Updating DB');
   const client = await collectionPromise;
   const collection = client.db('hyper').collection('log');
