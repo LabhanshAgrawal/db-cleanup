@@ -1,11 +1,26 @@
 // create an express app
 const express = require("express")
 const app = express()
-const { execSync } = require("child_process")
+const { spawn } = require("child_process")
+
+const runCleanup = () => {
+  return new Promise((resolve, reject) => {
+    const output = '';
+    const child = spawn("yarn", ["run", "cleanup"]);
+    child.stdout.on("data", (data) => {
+      output += data;
+      process.stdout.write(data.toString());
+    });
+    child.on("close", (code) => {
+      resolve(output);
+    });
+  })
+}
 
 // define the first route
-app.get("/", function (req, res) {
-  res.send("<pre>" + execSync('yarn run cleanup').toString() + "</pre>");
+app.get("/", async function (req, res) {
+  const output = await runCleanup();
+  res.send("<pre>" + output + "</pre>");
 })
 
 // start the server listening for requests
