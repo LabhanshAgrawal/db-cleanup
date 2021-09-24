@@ -38,7 +38,7 @@ export const cleanupDB = async (groupingPeriod: number, recurse: number): Promis
 
   const ts = data.ts - (data.ts % groupingPeriod);
 
-  console.log('processing', new Date(ts).toLocaleString('en-GB', {timeZone: 'IST'}));
+  console.log('processing', new Date(ts).toLocaleString('en-GB', {timeZone: 'Asia/Kolkata'}));
 
   const data2 = (
     await collection
@@ -76,7 +76,7 @@ export const cleanupDB = async (groupingPeriod: number, recurse: number): Promis
       return x;
     })
   );
-  console.log('processed', new Date(ts).toLocaleString('en-GB', {timeZone: 'IST'}));
+  console.log('processed', new Date(ts).toLocaleString('en-GB', {timeZone: 'Asia/Kolkata'}));
   return recurse > 0 ? await cleanupDB(groupingPeriod, recurse-1) : client;
 };
 
