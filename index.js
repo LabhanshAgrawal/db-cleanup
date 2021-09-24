@@ -5,11 +5,11 @@ const { spawn } = require("child_process")
 
 const runCleanup = () => {
   return new Promise((resolve, reject) => {
-    const output = '';
+    let output = '';
     const child = spawn("yarn", ["run", "cleanup"]);
     child.stdout.on("data", (data) => {
-      output += data;
-      process.stdout.write(data.toString());
+      output += data.toString() + "\n";
+      process.stdout.write(data.toString() + "\n");
     });
     child.on("close", (code) => {
       resolve(output);
