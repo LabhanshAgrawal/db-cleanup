@@ -8,8 +8,8 @@ const runCleanup = () => {
     let output = '';
     const child = spawn("yarn", ["run", "cleanup"]);
     child.stdout.on("data", (data) => {
-      output += data.toString() + "\n";
-      process.stdout.write(data.toString() + "\n");
+      output += data.toString();
+      process.stdout.write(data.toString());
     });
     child.on("close", (code) => {
       resolve(output);

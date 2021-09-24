@@ -3,7 +3,7 @@ import collectionPromise from './mongodb-client';
 
 export type doc = {ts: number; version: string; platform: string; count: number};
 
-export const cleanupDB = async (groupingPeriod: number, recurse: number): Promise<MongoClient> => {
+export const cleanupDB = async (groupingPeriod: number): Promise<MongoClient> => {
   console.log('Updating DB');
   const client = await collectionPromise;
   const collection = client.db('hyper').collection('log');
@@ -77,9 +77,9 @@ export const cleanupDB = async (groupingPeriod: number, recurse: number): Promis
     })
   );
   console.log('processed', new Date(ts).toLocaleString('en-GB', {timeZone: 'Asia/Kolkata'}));
-  return recurse > 0 ? await cleanupDB(groupingPeriod, recurse-1) : client;
+  return await cleanupDB(groupingPeriod);
 };
 
-cleanupDB(60 * 1000, 14)
-  .then(() => cleanupDB(30 * 60 * 1000, 0))
+cleanupDB(30 * 60 * 1000)
+  .then(() => cleanupDB(60 * 1000))
   .then((client)=> client.close());
