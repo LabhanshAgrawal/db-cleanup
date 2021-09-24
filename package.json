@@ -1,0 +1,12 @@
+{
+  "name": "db-cleanup",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:LabhanshAgrawal/db-cleanup.git",
+  "author": "Labhansh Agrawal <labhansh.agrawal@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "mongodb": "^4.1.2",
+    "ts-node": "^10.2.1"
+  }
+}
