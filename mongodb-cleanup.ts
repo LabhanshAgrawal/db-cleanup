@@ -80,6 +80,6 @@ export const cleanupDB = async (groupingPeriod: number, recurse: number): Promis
   return recurse > 0 ? await cleanupDB(groupingPeriod, recurse-1) : client;
 };
 
-cleanupDB(30 * 60 * 1000, 0)
-  .then(() => cleanupDB(60 * 1000, 14))
+cleanupDB(60 * 1000, 14)
+  .then(() => cleanupDB(30 * 60 * 1000, 0))
   .then((client)=> client.close());
