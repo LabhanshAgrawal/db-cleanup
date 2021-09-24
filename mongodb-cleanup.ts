@@ -38,7 +38,7 @@ export const cleanupDB = async (groupingPeriod: number): Promise<MongoClient> =>
 
   const ts = data.ts - (data.ts % groupingPeriod);
 
-  console.log('processing', new Date(ts).toLocaleString());
+  console.log('processing', new Date(ts).toLocaleString('en-GB', {timeZone: 'IST'}));
 
   const data2 = (
     await collection
@@ -76,7 +76,7 @@ export const cleanupDB = async (groupingPeriod: number): Promise<MongoClient> =>
       return x;
     })
   );
-  console.log('processed', new Date(ts).toLocaleString());
+  console.log('processed', new Date(ts).toLocaleString('en-GB', {timeZone: 'IST'}));
   return await cleanupDB(groupingPeriod);
 };
 
