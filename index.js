@@ -6,7 +6,7 @@ const { spawn } = require("child_process")
 const runCleanup = () => {
   return new Promise((resolve, reject) => {
     let output = '';
-    const child = spawn("yarn", ["run", "cleanup"]);
+    const child = spawn("flock", ["-xn", "a.lck", "yarn", "run", "cleanup"]);
     child.stdout.on("data", (data) => {
       output += data.toString();
       process.stdout.write(data.toString());
