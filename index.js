@@ -19,8 +19,10 @@ const runCleanup = () => {
 
 // define the first route
 app.get("/", async function (req, res) {
-  const output = await runCleanup();
-  res.send("<pre>" + output + "</pre>");
+  runCleanup().then((output) => {
+    console.log(output);
+  });
+  res.send("<pre> Run triggered </pre>");
 })
 
 // start the server listening for requests
