@@ -27,6 +27,10 @@ export const cleanupDB = async (groupingPeriod: number): Promise<MongoClient> =>
         }
       ]
     }
+  },{
+    sort: {
+      'ts': 'desc'
+    }
   });
 
   if (!data) {
