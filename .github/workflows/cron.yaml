@@ -1,0 +1,10 @@
+name: 5-minute-cron
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call DB cleanup function
+        run: curl --request POST --url 'https://db-cleanup.vercel.app/'

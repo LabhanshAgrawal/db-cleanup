@@ -16,7 +16,7 @@ export const cleanupDB = async (
       $expr: {
         $and: [
           {$ne: [{$mod: ['$ts', groupingPeriod]}, 0]},
-          {$lt: ['$ts', new Date().getTime() - 3 * groupingPeriod]},
+          {$lt: ['$ts', new Date().getTime() - Math.max(3 * groupingPeriod, fetchingPeriod)]},
         ],
       },
     },
@@ -91,11 +91,11 @@ export const cleanupDB = async (
 };
 
 if (require.main === module) {
-  cleanupDB(30 * 60 * 1000, 5 * 60 * 1000, {ts: 'desc'})
+  cleanupDB(30 * 60 * 1000, 30 * 60 * 1000, {ts: 'desc'})
     .then(([success, client, result]) =>
       success
         ? ([success, client, result] as [boolean, MongoClient, Partial<{start:string,end:string,groupingPeriod:string}>])
-        : cleanupDB(60 * 1000, 5 * 60 * 1000, {ts: 'asc'})
+        : cleanupDB(60 * 1000, 30 * 60 * 1000, {ts: 'asc'})
     )
     .then(([success, client, result]) => client.close());
 }
