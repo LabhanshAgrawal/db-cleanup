@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import { cleanupDB } from './mongodb-cleanup';
+import { cleanupDB } from '../mongodb-cleanup';
 
 // Main function export
 export default async (req: VercelRequest, res: VercelResponse) => {
