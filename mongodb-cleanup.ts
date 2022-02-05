@@ -11,44 +11,50 @@ export const cleanupDB = async (
   const client = await collectionPromise;
   const collection = client.db('hyper').collection<doc>('log');
   console.log('Connected to DB');
-  const data = await collection.findOne(
+  const data = await collection.aggregate<{_id:number,ts:number}>([
     {
-      $expr: {
-        $and: [
-          {$ne: [{$mod: ['$ts', groupingPeriod]}, 0]},
-          {$lt: ['$ts', new Date().getTime() - Math.max(3 * groupingPeriod, fetchingPeriod)]},
-        ],
+      $match: {
+        $expr: {
+          $and: [
+            {$ne: [{$mod: ['$ts', groupingPeriod]}, 0]},
+            {$lt: ['$ts', new Date().getTime() - Math.max(3 * groupingPeriod, fetchingPeriod)]},
+          ],
+        },
       },
     },
     {
-      sort,
-    }
-  );
+      $group: {
+        _id: {$subtract: ['$ts', {$mod: ['$ts', groupingPeriod]}]},
+        ts: {$min: '$ts'},
+      },
+    },
+    {
+      $sort: sort,
+    },
+    {
+      $limit: 1,
+    },
+  ]).toArray();
 
-  if (!data) {
+  if (data.length === 0) {
     console.log('No data');
     return [false, client, {}];
   } else {
     console.log('Fetched data');
   }
 
-  const baseTS = data.ts - (data.ts % groupingPeriod);
-
-  const latestData = await collection.findOne(
-    { $expr: { $and: [{$gt: ['$ts', baseTS]}, {$lt: ['$ts', baseTS + groupingPeriod]}], }, },
-    { sort: { ts: 'asc', }, }
-  );
-
-  const latestTS = latestData!.ts;
+  const startTS = data[0]._id;
+  let endTS = (data[0].ts + fetchingPeriod) - ((data[0].ts + fetchingPeriod) % fetchingPeriod);
+  endTS = endTS > startTS + groupingPeriod ? endTS - (endTS % groupingPeriod) : endTS;
 
   console.log(
     'processing',
-    new Date(baseTS).toLocaleString('en-GB', {timeZone: 'Asia/Kolkata'}),
+    new Date(startTS).toLocaleString('en-GB', {timeZone: 'Asia/Kolkata'}),
     'to',
-    new Date(latestTS + fetchingPeriod).toLocaleString('en-GB', {timeZone: 'Asia/Kolkata'})
+    new Date(endTS).toLocaleString('en-GB', {timeZone: 'Asia/Kolkata'})
   );
 
-  const dataFilter: Filter<doc> = {$expr: {$and: [{$gte: ['$ts', baseTS]}, {$lt: ['$ts', latestTS + fetchingPeriod]}]}}
+  const dataFilter: Filter<doc> = {$expr: {$and: [{$gte: ['$ts', startTS]}, {$lt: ['$ts', endTS]}]}}
 
   const data2 = (
     await collection
@@ -82,8 +88,8 @@ export const cleanupDB = async (
     true,
     client,
     {
-      start: new Date(baseTS).toLocaleString('en-GB', {timeZone: 'Asia/Kolkata'}),
-      end: new Date(latestTS + fetchingPeriod).toLocaleString('en-GB', {timeZone: 'Asia/Kolkata'}),
+      start: new Date(startTS).toLocaleString('en-GB', {timeZone: 'Asia/Kolkata'}),
+      end: new Date(endTS).toLocaleString('en-GB', {timeZone: 'Asia/Kolkata'}),
       groupingPeriod: `${groupingPeriod/(60*1000)} minutes`,
     }
   ];
@@ -91,11 +97,11 @@ export const cleanupDB = async (
 };
 
 if (require.main === module) {
-  cleanupDB(30 * 60 * 1000, 30 * 60 * 1000, {ts: 'desc'})
+  cleanupDB(30 * 60 * 1000, 30 * 60 * 1000, {ts: -1})
     .then(([success, client, result]) =>
       success
         ? ([success, client, result] as [boolean, MongoClient, Partial<{start:string,end:string,groupingPeriod:string}>])
-        : cleanupDB(60 * 1000, 30 * 60 * 1000, {ts: 'asc'})
+        : cleanupDB(60 * 1000, 30 * 60 * 1000, {ts: 1})
     )
     .then(([success, client, result]) => client.close());
 }
