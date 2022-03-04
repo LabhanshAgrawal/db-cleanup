@@ -21,3 +21,5 @@ jobs:
         run: yarn install
       - name: Run DB cleanup script
         run: yarn run cleanup
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
