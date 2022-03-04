@@ -62,7 +62,8 @@ export const cleanupDB = async (
       .toArray()
   ).map((d) => ({version: d.version, platform: d.platform, count: d.count || 1, ts: d.ts}));
 
-  const data3 = Object.values(data2.reduce((acc, d) => {
+  const acc: Record<string,doc> = {};
+  for (const d of data2) {
     const _ts = d.ts - (d.ts % groupingPeriod);
     const key = `${d.version}-${d.platform}-${_ts}`;
     if (acc[key]) {
@@ -70,8 +71,9 @@ export const cleanupDB = async (
     } else {
       acc[key] = {...d, ts: _ts};
     }
-    return acc;
-  }, {} as Record<string, doc>));
+  }
+  const data3 = Object.values(acc);
+
 
   console.log(
     await collection.deleteMany(dataFilter)
@@ -97,7 +99,7 @@ export const cleanupDB = async (
 };
 
 if (require.main === module) {
-  cleanupDB(30 * 60 * 1000, 30 * 60 * 1000, {ts: -1})
+  cleanupDB(30 * 60 * 1000, 6 * 30 * 60 * 1000, {ts: 1})
     .then(([success, client, result]) =>
       success
         ? ([success, client, result] as [boolean, MongoClient, Partial<{start:string,end:string,groupingPeriod:string}>])
