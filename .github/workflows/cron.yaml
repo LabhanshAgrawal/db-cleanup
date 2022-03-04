@@ -6,5 +6,5 @@ jobs:
   cron:
     runs-on: ubuntu-latest
     steps:
-      - name: Call DB cleanup function
-        run: curl --request POST --url 'https://db-cleanup.vercel.app/'
+      - name: Run DB cleanup script
+        run: yarn run cleanup
