@@ -74,6 +74,7 @@ export const cleanupDB = async (
   }
   const data3 = Object.values(acc);
 
+  console.log('starting deletion');
 
   console.log(
     await collection.deleteMany(dataFilter)
@@ -98,13 +99,18 @@ export const cleanupDB = async (
   // return await cleanupDB(groupingPeriod, fetchingPeriod, sort);
 };
 
+const runCleanup = async () => {
+  console.log('running cleanup 🧹');
+  const [success, client, result] = await cleanupDB(60 * 60 * 1000, 24 * 60 * 60 * 1000, {ts: 1});
+  if (success) {
+    await runCleanup();
+  } else {
+    await cleanupDB(60 * 1000, 60 * 60 * 1000, {ts: 1});
+  }
+  client.close();
+}
+
 if (require.main === module) {
-  cleanupDB(30 * 60 * 1000, 6 * 30 * 60 * 1000, {ts: 1})
-    .then(([success, client, result]) =>
-      success
-        ? ([success, client, result] as [boolean, MongoClient, Partial<{start:string,end:string,groupingPeriod:string}>])
-        : cleanupDB(60 * 1000, 30 * 60 * 1000, {ts: 1})
-    )
-    .then(([success, client, result]) => client.close());
+  runCleanup().then(() => console.log('done'));
 }
 
