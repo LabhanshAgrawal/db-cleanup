@@ -99,18 +99,13 @@ export const cleanupDB = async (
   // return await cleanupDB(groupingPeriod, fetchingPeriod, sort);
 };
 
-const runCleanup = async () => {
-  console.log('running cleanup 🧹');
-  const [success, client, result] = await cleanupDB(60 * 60 * 1000, 24 * 60 * 60 * 1000, {ts: 1});
-  if (success) {
-    await runCleanup();
-  } else {
-    await cleanupDB(60 * 1000, 60 * 60 * 1000, {ts: 1});
-  }
-  client.close();
-}
-
 if (require.main === module) {
-  runCleanup().then(() => console.log('done'));
+  cleanupDB(60 * 60 * 1000, 24 * 60 * 60 * 1000, {ts: 1})
+    .then(([success, client, result]) =>
+      success
+        ? ([success, client, result] as [boolean, MongoClient, Partial<{start:string,end:string,groupingPeriod:string}>])
+        : cleanupDB(60 * 1000, 60 * 60 * 1000, {ts: 1})
+    )
+    .then(([success, client, result]) => client.close());
 }
 
